@@ -1,8 +1,14 @@
 import express from "express";
+import helmet from "helmet";
+import dotenv from "dotenv"
 
+dotenv.config();
 const app = express();
-const PORT = 3000;
 
-app.listen(PORT, () => {
-console.log("server ready");
+app.use(helmet());
+
+const port = process.env.PORT;
+
+app.listen(port, () => {
+  console.log("server ready");
 });
