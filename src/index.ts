@@ -1,7 +1,7 @@
 import express from "express";
 import helmet from "helmet";
 import dotenv from "dotenv";
-import { urlRoute } from "./url/url.routes";
+import { urlRoute } from "./url/url.route";
 
 dotenv.config();
 const app = express();
