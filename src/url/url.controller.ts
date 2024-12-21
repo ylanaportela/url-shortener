@@ -15,7 +15,7 @@ export const getUrl = async (req: Request, res: Response) => {
 
 export const createNewUrl = async (req: Request, res: Response) => {
   const { destination }  = req.body;
-  const storagedId = req.session.userId as string;
+  const storagedId = req.session.user?.id as string;
 
   if(! destination || typeof destination !== 'string'){
     res.status(500).send('Something went wrong with destination input');

@@ -63,8 +63,10 @@ export const Login = async (req: Request, res: Response) => {
     res.status(401).send("Invalid email or password");
     return;
   }
-
-  req.session.userId = existingUser.id;
-  req.session.email = existingUser.email;
+  
+  if(req.session.user){
+    req.session.user.id = existingUser.id;
+    req.session.user.email = existingUser.email;
+  }
   res.send("Login successful");
 };
