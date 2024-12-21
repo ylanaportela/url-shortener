@@ -3,7 +3,3 @@ export type Url = {
   destination: string;
   userId: number;
 }
-
-export type UrlRequestBody = {
-  destination: string;
-}

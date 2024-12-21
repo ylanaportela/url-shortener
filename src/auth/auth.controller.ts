@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { existsUser, createUser } from "./auth.service";
+import { findUser, createUser } from "./auth.service";
 import bcrypt from "bcrypt";
 
 interface User {
@@ -9,56 +9,62 @@ interface User {
   password: string;
 }
 
-export const SingUp = async (req: Request, res: Response) => {
+export const SignUp = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
-  if (
-    email &&
-    typeof email === "string" &&
-    password &&
-    typeof password === "string"
-  ) {
-    const result: User | undefined = await existsUser(email);
+  if(!email || typeof email !== "string" ){
+    res.status(500).send("Invalid email format");
+    return;
+  }
 
-    if (!result) {
-      const cryptPassword = bcrypt.hashSync(password, 10);
-      const createdUser = await createUser(email, cryptPassword);
+  if(!password || typeof password !== "string" ){
+    res.status(500).send("Invalid password format");
+    return;
+  }
 
-      if (createdUser) {
-        res.status(201).send("Account created successfully");
-        return;
-      } else {
-        res.status(500).send("Something went wrong");
-        return;
-      }
-    } 
+  const existingUser: User | undefined = await findUser(email);
+  if(existingUser){
     res.status(500).send("Alredy has an account");
+  }
+
+  const cryptPassword = bcrypt.hashSync(password, 10);
+  const createdUser = await createUser(email, cryptPassword);
+
+  if (createdUser !== undefined) {
+    res.status(201).send("Account created successfully");
   } else {
-    res.status(500).send("Invalid email or password format");
+    res.status(500).send("Something went wrong");
   }
 };
 
 export const Login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
-  if (email && typeof email === "string" && password &&  typeof password === "string") {
-    const result: User | undefined = await existsUser(email);
-    if (result) {
-      const comparePassword = bcrypt.compareSync(password, result.password);
-
-      if (comparePassword) {
-        req.session.userId = result.id;
-        req.session.email = result.email;
-        res.send("Login successful");
-        return;
-
-      } else {
-        res.status(401).send("Invalid email or password");
-      }
-    } else {
-      res.status(404).send("Account not found");
-    }
-  } else {
-    res.status(500).send("Invalid email or password format");
+  if(!email || typeof email !== "string" ){
+    res.status(500).send("Invalid email format");
+    return;
   }
+
+  if(!password || typeof password !== "string" ){
+    res.status(500).send("Something went wrong with your password");
+    return;
+  }
+
+  const existingUser: User | undefined = await findUser(email);
+
+  if(!existingUser){
+    res.status(404).send("Account not found");
+    return;
+  }
+
+  const comparePassword = bcrypt.compareSync(password, existingUser.password);
+
+  if(!comparePassword){
+    res.status(401).send("Invalid email or password");
+    return;
+  }
+
+  req.session.userId = existingUser.id;
+  req.session.email = existingUser.email;
+  res.send("Login successful");
 };
