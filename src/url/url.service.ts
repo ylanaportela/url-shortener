@@ -15,10 +15,29 @@ export async function createUrl (destination: string, userId: string){
   const id = nanoid(8);
   try {
     const result = await database.query("insert into urls (id, destination, user_id) values ($1, $2, $3) returning *", [id, destination, userId]);
-    console.log(result.rows[0]);
     return result.rows[0];
   } catch(error) {
     console.error('Something went wrong with the database insertion', error);
+  }
+}
+
+export async function updateUrl (id: string, destination: string){
+  try{
+    const result = await database.query('update urls set destination=($1) where id=($2) returning *', [destination, id])
+    return result.rows[0];
+  }
+  catch(error) {
+    console.error('Something went wrong with the database update', error);
     return;
+  }
+}
+
+export async function deleteUrlById (id: string){
+  try{
+    const result = await database.query('delete from urls where id=($1) returning *', [id])
+    return result.rows[0];
+  }
+  catch(error){
+    console.error('Something went wrong with the database delete', error);
   }
 }
