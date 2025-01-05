@@ -1,13 +1,13 @@
 import express from "express";
 import helmet from "helmet";
 import dotenv from "dotenv";
-import { urlRoute } from "./url/url.route";
+import { urlRoute } from "./url/url.routes";
 import { authRoute } from "./auth/auth.routes";
 import { sessionConfig } from "./middleware/session.middleware";
 
 dotenv.config();
 
-const app = express();
+export const app = express();
 const port = process.env.PORT;
 
 app.use(helmet());

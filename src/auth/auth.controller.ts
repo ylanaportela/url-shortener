@@ -1,30 +1,15 @@
 import { Request, Response } from "express";
 import { findUser, createUser } from "./auth.service";
 import bcrypt from "bcrypt";
-
-interface User {
-  id: string;
-  name?: string;
-  email: string;
-  password: string;
-}
+import { User } from "user/user.model";
 
 export const SignUp = async (req: Request, res: Response) => {
   const { email, password } = req.body;
-
-  if(!email || typeof email !== "string" ){
-    res.status(500).send("Invalid email format");
-    return;
-  }
-
-  if(!password || typeof password !== "string" ){
-    res.status(500).send("Invalid password format");
-    return;
-  }
-
+ 
   const existingUser: User | undefined = await findUser(email);
   if(existingUser){
     res.status(500).send("Alredy has an account");
+    return;
   }
 
   const cryptPassword = bcrypt.hashSync(password, 10);
@@ -40,16 +25,6 @@ export const SignUp = async (req: Request, res: Response) => {
 export const Login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
-  if(!email || typeof email !== "string" ){
-    res.status(500).send("Invalid email format");
-    return;
-  }
-
-  if(!password || typeof password !== "string" ){
-    res.status(500).send("Something went wrong with your password");
-    return;
-  }
-
   const existingUser: User | undefined = await findUser(email);
 
   if(!existingUser){
@@ -63,10 +38,9 @@ export const Login = async (req: Request, res: Response) => {
     res.status(401).send("Invalid email or password");
     return;
   }
-  
-  if(req.session.user){
-    req.session.user.id = existingUser.id;
-    req.session.user.email = existingUser.email;
-  }
+
+  req.session.user = req.session.user ?? {};
+  req.session.user.id = existingUser.id;
+
   res.send("Login successful");
 };
