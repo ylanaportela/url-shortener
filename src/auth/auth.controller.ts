@@ -44,3 +44,14 @@ export const Login = async (req: Request, res: Response) => {
 
   res.send("Login successful");
 };
+
+
+export async function Logout(req: Request, res: Response){
+  req.session.destroy((err)=> {
+    if(err){
+      res.status(500).send("Unabled to log out");
+      return;
+    }
+    res.send("Logout successful");
+  });
+}
