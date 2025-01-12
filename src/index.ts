@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import { urlRoute } from "./url/url.routes";
 import { authRoute } from "./auth/auth.routes";
 import { sessionConfig } from "./middleware/session.middleware";
+import { userRoute } from "./user/user.routes";
 
 dotenv.config();
 
@@ -14,6 +15,7 @@ app.use(helmet());
 app.use(express.json());
 app.use(sessionConfig);
 app.use(authRoute);
+app.use(userRoute);
 app.use(urlRoute);
 
 app.listen(port, () => {
