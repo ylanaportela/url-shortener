@@ -12,8 +12,8 @@ export async function findUser (email: string) {
 
 export async function createUser (email: string, password: string){
   try {
-    await database.query("insert into users (email, password) values ($1, $2)", [email, password]);
-    return;
+    const result = await database.query("insert into users (email, password) values ($1, $2)", [email, password]);
+    return result.rows[0];
   } catch(error) {
     console.error('Something went wrong with the database insertion', error);
   }
