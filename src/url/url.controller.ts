@@ -1,11 +1,23 @@
 import { Request, Response } from "express";
-import { deleteUrlById, findUrl, updateUrl } from "./url.service";
+import { deleteUrlById, findUrl, selectUsersUrls, updateUrl } from "./url.service";
 import { createUrl } from "./url.service";
 
 const existUrl = async(id: string) => {
   const url = await findUrl(id);
 
   return url;
+}
+
+export const getUserUrls = async (req: Request, res: Response) => {
+  const userId = req.session.user?.id as string;
+
+  const urls = await selectUsersUrls(userId);
+
+  if(!urls){
+    res.status(404).send(`No URL was found for the given userId ${userId}`);
+    return;
+  };
+  res.status(200).send(urls);
 }
 
 export const getUrl = async (req: Request, res: Response) => {
@@ -17,18 +29,14 @@ export const getUrl = async (req: Request, res: Response) => {
     return
   }
   res.redirect(url.destination);
-  // res.status(200).send(url);
+  res.status(200);
 }
 
 export const createNewUrl = async (req: Request, res: Response) => {
   const { destination }  = req.body;
-  const storagedId = req.session.user?.id as string;
+  const userId = req.session.user?.id as string;
 
-  if(! destination || typeof destination !== 'string'){
-    res.status(500).send('Something went wrong with destination input');
-  }
-
-  const createdUrl = await createUrl(destination, storagedId);
+  const createdUrl = await createUrl(destination, userId);
 
   if(! createdUrl){
     res.status(500).send('Something went wrong with creation url');
@@ -47,11 +55,6 @@ export const updateDestinationUrl = async(req: Request, res: Response) => {
   }
 
   const { destination }  = req.body;
-
-  if(!destination && typeof destination !== "string"){
-    res.status(500).send('Something went wrong with destination input');
-    return;
-  }
 
   const updatedUrl = await updateUrl(id, destination)
 

@@ -11,6 +11,15 @@ export async function findUrl (urlId: string): Promise<Url | undefined>{
   }
 }
 
+export async function selectUsersUrls (userId: string): Promise<Url[] | undefined>{
+  try {
+    const result = (await database.query("select * from urls where user_id=$1", [userId]));
+    return result.rows;
+  } catch(error) {
+    console.error('Something went wrong with the database query', error);
+  }
+}
+
 export async function createUrl (destination: string, userId: string){
   const id = nanoid(8);
   try {
